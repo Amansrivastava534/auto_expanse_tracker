@@ -232,15 +232,16 @@ class _ExpenseTrackerPageState extends State<ExpenseTrackerPage> with SingleTick
     );
   }
   Widget _buildTransactionList(List<Map<String, dynamic>> transactions, Color iconColor, bool isTabIsDebit) {
-    String debitAmount = transactions.map((item) => item['debitAmount'] ?? 0.0).reduce((a, b) => a + b).toStringAsFixed(2);
-    String creditAmount = transactions.map((item) => item['creditAmount'] ?? 0.0).reduce((a, b) => a + b).toStringAsFixed(2);
+
     if (transactions.isEmpty) {
       return Center(child: Text("No transactions found for this month!"));
     }
+    String debitAmount = transactions.map((item) => item['debitAmount'] ?? 0.0).reduce((a, b) => a + b).toStringAsFixed(2);
+    String creditAmount = transactions.map((item) => item['creditAmount'] ?? 0.0).reduce((a, b) => a + b).toStringAsFixed(2);
 
     return RefreshIndicator(
       onRefresh: () async{
-        _filterTransactions(DateTime.now().month);
+        _getSmsPermissionAndListen(context);
         return ;
       },
       child: Column(
