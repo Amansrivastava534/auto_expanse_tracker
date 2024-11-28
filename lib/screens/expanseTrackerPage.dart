@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-// import 'package:flutter_sms_inbox/flutter_sms_inbox.dart';
 import 'package:intl/intl.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import 'package:telephony/telephony.dart';
@@ -9,6 +7,8 @@ import '../components/customScaffold.dart';
 
 
 class ExpenseTrackerPage extends StatefulWidget {
+  const ExpenseTrackerPage({super.key});
+
   @override
   _ExpenseTrackerPageState createState() => _ExpenseTrackerPageState();
 }
@@ -83,7 +83,7 @@ class _ExpenseTrackerPageState extends State<ExpenseTrackerPage> with SingleTick
     } else {
       // Notify the user if permission is denied
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("SMS permission denied!")),
+        const SnackBar(content: Text("SMS permission denied!")),
       );
     }
   }
@@ -179,12 +179,12 @@ class _ExpenseTrackerPageState extends State<ExpenseTrackerPage> with SingleTick
     return SafeArea(
       top: true,
       child: Scaffold(
-        drawer: CustomDrawer(),
+        drawer: const CustomDrawer(),
         appBar: AppBar(
-          title: Text("Expense Tracker"),
+          title: const Text("Expense Tracker"),
           actions: [
             PopupMenuButton<int>(
-              icon: Icon(Icons.settings),
+              icon: const Icon(Icons.settings),
               onSelected: (selectedMonth) {
                 _filterTransactions(selectedMonth);
               },
@@ -215,7 +215,7 @@ class _ExpenseTrackerPageState extends State<ExpenseTrackerPage> with SingleTick
           ],
           bottom: TabBar(
             controller: _tabController,
-            tabs: [
+            tabs: const [
               Tab(icon: Icon(Icons.arrow_upward, color: Colors.red), text: "Debits"),
               Tab(icon: Icon(Icons.arrow_downward, color: Colors.green), text: "Credits"),
             ],
@@ -234,7 +234,7 @@ class _ExpenseTrackerPageState extends State<ExpenseTrackerPage> with SingleTick
   Widget _buildTransactionList(List<Map<String, dynamic>> transactions, Color iconColor, bool isTabIsDebit) {
 
     if (transactions.isEmpty) {
-      return Center(child: Text("No transactions found for this month!"));
+      return const Center(child: Text("No transactions found for this month!"));
     }
     String debitAmount = transactions.map((item) => item['debitAmount'] ?? 0.0).reduce((a, b) => a + b).toStringAsFixed(2);
     String creditAmount = transactions.map((item) => item['creditAmount'] ?? 0.0).reduce((a, b) => a + b).toStringAsFixed(2);
@@ -260,9 +260,9 @@ class _ExpenseTrackerPageState extends State<ExpenseTrackerPage> with SingleTick
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Total spent:"),
+                      const Text("Total spent:"),
                       Text(
-                        "\$ ${debitAmount}",
+                        "\$ $debitAmount",
                       ),
                     ],
                   ),
@@ -272,9 +272,9 @@ class _ExpenseTrackerPageState extends State<ExpenseTrackerPage> with SingleTick
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Total gain:"),
+                      const Text("Total gain:"),
                       Text(
-                        "\$ ${creditAmount}",
+                        "\$ $creditAmount",
                       ),
                     ],
                   ),
@@ -310,7 +310,7 @@ class _ExpenseTrackerPageState extends State<ExpenseTrackerPage> with SingleTick
                         ),
                         Text(
                           DateFormat("dd-MM-yyyy").format(transaction['date']),
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontWeight: FontWeight.bold,
                           ),
                         ),
