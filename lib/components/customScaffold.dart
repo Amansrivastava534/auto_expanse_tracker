@@ -5,7 +5,8 @@ class CustomScaffold extends StatefulWidget {
   final String title;
   final Widget? body;
   final List<Widget>? appBarActions;
-  const CustomScaffold({super.key, required this.title, this.body, this.appBarActions});
+  final bool drawerDisable;
+  const CustomScaffold({super.key, required this.title, this.body, this.appBarActions, this.drawerDisable = false});
 
   @override
   State<CustomScaffold> createState() => _CustomScaffoldState();
@@ -18,7 +19,7 @@ class _CustomScaffoldState extends State<CustomScaffold> {
       top: true,
         child: Scaffold(
           resizeToAvoidBottomInset: false,
-          drawer: const CustomDrawer(),
+          drawer: widget.drawerDisable ? null : const CustomDrawer(),
           appBar: AppBar(
             title: Text(widget.title),
             actions: widget.appBarActions,

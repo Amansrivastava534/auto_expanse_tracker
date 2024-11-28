@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:async';
 
-import 'package:sms_tracker/components/customScaffold.dart';
+import '../components/customScaffold.dart';
 
 
 class ExpenseTrackerPage extends StatefulWidget {
@@ -132,7 +132,8 @@ class _ExpenseTrackerPageState extends State<ExpenseTrackerPage> with SingleTick
             PopupMenuButton<int>(
               icon: Icon(Icons.settings),
               onSelected: (selectedMonth) {
-                _filterTransactions(selectedMonth);
+                _getSmsPermissionAndListen();
+                // _filterTransactions(selectedMonth);
               },
               itemBuilder: (context) {
                 final months = [
