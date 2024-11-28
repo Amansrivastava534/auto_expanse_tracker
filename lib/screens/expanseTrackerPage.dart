@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_sms_inbox/flutter_sms_inbox.dart';
+// import 'package:flutter_sms_inbox/flutter_sms_inbox.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
-
+import 'package:telephony/telephony.dart';
 import '../components/customScaffold.dart';
 
 
@@ -13,17 +14,18 @@ class ExpenseTrackerPage extends StatefulWidget {
 }
 
 class _ExpenseTrackerPageState extends State<ExpenseTrackerPage> with SingleTickerProviderStateMixin {
-  final SmsQuery _smsQuery = SmsQuery();
+  final Telephony telephony = Telephony.instance;
+  final StreamController<List<SmsMessage>> _smsStreamController = StreamController<List<SmsMessage>>();
+  List<SmsMessage> _allMessages = [];
   List<SmsMessage> _messages = [];
   List<Map<String, dynamic>> _filteredTransactions = [];
   late TabController _tabController;
   late StreamSubscription<List<SmsMessage>> _smsSubscription;
-  final StreamController<List<SmsMessage>> _smsStreamController = StreamController.broadcast();
 
   @override
   void initState() {
     super.initState();
-    _getSmsPermissionAndListen();
+    _getSmsPermissionAndListen(context);
     _tabController = TabController(length: 2, vsync: this);
     _smsSubscription = _smsStreamController.stream.listen((messages) {
       setState(() {
@@ -40,61 +42,107 @@ class _ExpenseTrackerPageState extends State<ExpenseTrackerPage> with SingleTick
     super.dispose();
   }
 
-  Future<void> _getSmsPermissionAndListen() async {
-    var status = await Permission.sms.status;
-    if (status.isDenied) {
-      status = await Permission.sms.request();
-    }
+  // Future<void> _getSmsPermissionAndListen() async {
+  //   var status = await Permission.sms.status;
+  //   if (status.isDenied) {
+  //     status = await Permission.sms.request();
+  //   }
+  //
+  //   if (status.isGranted) {
+  //     List<SmsMessage> newMessages = await _smsQuery.getAllSms;
+  //     newMessages.sort((a, b) {
+  //       // Use `compareTo` in reverse order to get descending sort
+  //       return (b.date ?? DateTime.now()).compareTo(a.date ?? DateTime.now());
+  //     });
+  //     _smsStreamController.add(newMessages);
+  //   } else {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text("SMS permission denied!")),
+  //     );
+  //   }
+  // }
 
-    if (status.isGranted) {
-      List<SmsMessage> newMessages = await _smsQuery.getAllSms;
-      newMessages.sort((a, b) {
-        // Use `compareTo` in reverse order to get descending sort
-        return (b.date ?? DateTime.now()).compareTo(a.date ?? DateTime.now());
-      });
-      _smsStreamController.add(newMessages);
+  // -------------------------------------------------
+  Future<void> _getSmsPermissionAndListen(BuildContext context) async {
+    // Request SMS and phone permissions
+    bool? permissionsGranted = await telephony.requestPhoneAndSmsPermissions;
+
+    if (permissionsGranted == true) {
+      // Set up real-time SMS listener
+      telephony.listenIncomingSms(
+        onNewMessage: (SmsMessage message) {
+          _handleNewSms(message);
+        },
+        onBackgroundMessage: _onBackgroundMessage, // Optional background handler
+      );
+
+      // Fetch initial SMS messages from inbox
+      List<SmsMessage> newMessages = await telephony.getInboxSms();
+      _allMessages = newMessages;
+      _smsStreamController.add(_allMessages);
     } else {
+      // Notify the user if permission is denied
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("SMS permission denied!")),
       );
     }
   }
 
+  void _handleNewSms(SmsMessage message) {
+    _allMessages.insert(0, message); // Add new SMS to the beginning of the list
+    _filterTransactions(-1);
+    _smsStreamController.add(_allMessages); // Emit the updated list to the stream
+    setState(() {});
+  }
+
+  static Future<void> _onBackgroundMessage(SmsMessage message) async {
+    print("Background SMS received: ${message.body}");
+  }
+
+  static const accountNumbers = ["8378","3806"];
+  static const debitKeywords = ["Amt Sent","debited", "withdrawn", "Sent Rs."];
+  static const creditKeywords = ["credited to", "deposited","CREDITED to"];
+
   void _filterTransactions(int selectedMonth) {
     final now = DateTime.now();
     final currentYear = now.year;
 
-    const accountNumbers = ["8378","3806"];
-    const debitKeywords = ["Amt Sent","debited", "withdrawn", "Sent Rs."];
-    const creditKeywords = ["credited to", "deposited","CREDITED to"];
 
     setState(() {
-      _filteredTransactions = _messages.map((message) {
+      // Filter and map messages into transactions
+      _filteredTransactions = _messages
+          .map((message) {
         final body = message.body?.toLowerCase() ?? "";
+        if (!accountNumbers.any((account) => body.contains(account.toLowerCase()))) {
+          return null; // Skip messages not related to specified accounts
+        }
+
         String? type;
         double? creditAmount;
         double? debitAmount;
 
-        final matchesAccount = accountNumbers.any((account) => body.contains(account.toLowerCase()));
-        if (!matchesAccount) return null;
+        // Convert `message.date` (int) to `DateTime`
+        DateTime? transactionDate = message.date != null
+            ? DateTime.fromMillisecondsSinceEpoch(message.date ?? 0).toLocal()
+            : null;
 
+        // Check for debit or credit keywords and extract amount
         if (debitKeywords.any((keyword) => body.contains(keyword.toLowerCase()))) {
           type = "Debited";
           debitAmount = _extractAmount(body);
-        }
-        if (creditKeywords.any((keyword) => body.contains(keyword.toLowerCase()))) {
+        } else if (creditKeywords.any((keyword) => body.contains(keyword.toLowerCase()))) {
           type = "Credited";
           creditAmount = _extractAmount(body);
         }
 
+        // Only include transactions matching type and amount
         if (type != null && (creditAmount != null || debitAmount != null)) {
-          DateTime? transactionDate = message.date?.toLocal();
-          if (selectedMonth == -1 || // Show all if "All" is selected
+          // Check month filter condition
+          if (selectedMonth == -1 || // Show all transactions if "All" is selected
               (transactionDate != null &&
                   transactionDate.year == currentYear &&
                   transactionDate.month == selectedMonth)) {
             return {
-              "sender": message.sender ?? "Unknown",
               "type": type,
               "creditAmount": creditAmount,
               "debitAmount": debitAmount,
@@ -103,8 +151,12 @@ class _ExpenseTrackerPageState extends State<ExpenseTrackerPage> with SingleTick
             };
           }
         }
-        return null;
-      }).where((transaction) => transaction != null).toList().cast<Map<String, dynamic>>();
+
+        return null; // Skip messages that don't match criteria
+      })
+          .where((transaction) => transaction != null) // Remove null values
+          .toList()
+          .cast<Map<String, dynamic>>(); // Cast to list of maps
     });
   }
 
@@ -132,7 +184,7 @@ class _ExpenseTrackerPageState extends State<ExpenseTrackerPage> with SingleTick
             PopupMenuButton<int>(
               icon: Icon(Icons.settings),
               onSelected: (selectedMonth) {
-                _getSmsPermissionAndListen();
+                _getSmsPermissionAndListen(context);
                 // _filterTransactions(selectedMonth);
               },
               itemBuilder: (context) {
@@ -246,7 +298,7 @@ class _ExpenseTrackerPageState extends State<ExpenseTrackerPage> with SingleTick
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "${transaction['type']} - \$${transaction[transaction['type'] == 'Debited' ? 'debitAmount' : 'creditAmount']!.toStringAsFixed(2)}",
+                          "${transaction['type']} - \$${transaction[transaction['type'] == 'Debited' ? 'debitAmount' : 'creditAmount'].toStringAsFixed(2)}",
                           style: TextStyle(
                             color: iconColor,
                             fontWeight: FontWeight.bold,
