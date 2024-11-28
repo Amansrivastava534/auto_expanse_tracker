@@ -105,6 +105,7 @@ class _CardSaverPageState extends State<CardSaverPage> {
   Widget build(BuildContext context) {
     return CustomScaffold(
       title:"Manage Cards",
+      drawerDisable: _cards.isEmpty,
       appBarActions: [
         GradientButton(
           onPressed: () async{

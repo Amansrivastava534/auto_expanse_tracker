@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:async';
 
+import 'package:sms_tracker/components/customScaffold.dart';
+
 
 class ExpenseTrackerPage extends StatefulWidget {
   @override
@@ -123,36 +125,7 @@ class _ExpenseTrackerPageState extends State<ExpenseTrackerPage> with SingleTick
     return SafeArea(
       top: true,
       child: Scaffold(
-        drawer: Drawer(
-          width: 220,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20,10,0,0),
-            child: ListView(
-              shrinkWrap: true,
-              children: [
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: IconButton(
-                      icon: Icon(
-                        Icons.close,
-                      ),
-                      onPressed: () {
-                        Navigator.of(context).pop(context);
-                      }),
-                ),
-                InkWell(
-                  child: Row(
-                    children: [
-                      Icon(Icons.settings),
-                      SizedBox(width: 10,),
-                      Text("Settings")
-                    ],
-                  ),
-                )
-              ],
-            ),
-          ),
-        ),
+        drawer: CustomDrawer(),
         appBar: AppBar(
           title: Text("Expense Tracker"),
           actions: [

@@ -43,8 +43,6 @@ class _CustomHomeState extends State<CustomHome> {
 
     List<String>? savedCards = prefs.getStringList('savedCards');
 
-    print("savedCards:::${savedCards}");
-
     if(savedCards == null ||  savedCards.isEmpty){
       Navigator.pushAndRemoveUntil(context,
           MaterialPageRoute(builder: (_) => CardSaverPage()), (
