@@ -138,54 +138,87 @@ class _ExpenseTrackerPageState extends State<ExpenseTrackerPage> with SingleTick
   Widget build(BuildContext context) {
     final debitTransactions = _filteredTransactions.where((t) => t['type'] == 'Debited').toList();
     final creditTransactions = _filteredTransactions.where((t) => t['type'] == 'Credited').toList();
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Expense Tracker"),
-        actions: [
-          PopupMenuButton<int>(
-            icon: Icon(Icons.settings),
-            onSelected: (selectedMonth) {
-              _filterTransactions(selectedMonth);
-            },
-            itemBuilder: (context) {
-              final months = [
-                "All", // Index 0 for "All"
-                "January",
-                "February",
-                "March",
-                "April",
-                "May",
-                "June",
-                "July",
-                "August",
-                "September",
-                "October",
-                "November",
-                "December"
-              ];
-              return List.generate(13, (index) {
-                return PopupMenuItem(
-                  value: index == 0 ? -1 : index,
-                  child: Text(months[index]),
-                );
-              });
-            },
+    return SafeArea(
+      top: true,
+      child: Scaffold(
+        drawer: Drawer(
+          width: 220,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20,10,0,0),
+            child: ListView(
+              shrinkWrap: true,
+              children: [
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: IconButton(
+                      icon: Icon(
+                        Icons.close,
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop(context);
+                      }),
+                ),
+               InkWell(
+                 child: Row(
+                   children: [
+                     Icon(Icons.settings),
+                     SizedBox(width: 10,),
+                     Text("Settings")
+                   ],
+                 ),
+               )
+              ],
+            ),
           ),
-        ],
-        bottom: TabBar(
+        ),
+        appBar: AppBar(
+          title: Text("Expense Tracker"),
+          actions: [
+            PopupMenuButton<int>(
+              icon: Icon(Icons.settings),
+              onSelected: (selectedMonth) {
+                _filterTransactions(selectedMonth);
+              },
+              itemBuilder: (context) {
+                final months = [
+                  "All", // Index 0 for "All"
+                  "January",
+                  "February",
+                  "March",
+                  "April",
+                  "May",
+                  "June",
+                  "July",
+                  "August",
+                  "September",
+                  "October",
+                  "November",
+                  "December"
+                ];
+                return List.generate(13, (index) {
+                  return PopupMenuItem(
+                    value: index == 0 ? -1 : index,
+                    child: Text(months[index]),
+                  );
+                });
+              },
+            ),
+          ],
+          bottom: TabBar(
+            controller: _tabController,
+            tabs: [
+              Tab(icon: Icon(Icons.arrow_upward, color: Colors.red), text: "Debits"),
+              Tab(icon: Icon(Icons.arrow_downward, color: Colors.green), text: "Credits"),
+            ],
+          ),
+        ),
+        body: TabBarView(
           controller: _tabController,
-          tabs: [
-            Tab(icon: Icon(Icons.arrow_upward, color: Colors.red), text: "Debits"),
-            Tab(icon: Icon(Icons.arrow_downward, color: Colors.green), text: "Credits"),
+          children: [
+            _buildTransactionList(debitTransactions, Colors.red, true),
+            _buildTransactionList(creditTransactions, Colors.green, false),
           ],
         ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildTransactionList(debitTransactions, Colors.red, true),
-          _buildTransactionList(creditTransactions, Colors.green, false),
-        ],
       ),
     );
   }
