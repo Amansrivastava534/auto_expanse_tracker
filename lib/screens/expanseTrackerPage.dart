@@ -99,13 +99,15 @@ class _ExpenseTrackerPageState extends State<ExpenseTrackerPage> with SingleTick
     print("Background SMS received: ${message.body}");
   }
 
-  static const accountNumbers = ["8378","3806"];
-  static const debitKeywords = ["Amt Sent","debited", "withdrawn", "Sent Rs."];
-  static const creditKeywords = ["credited to", "deposited","CREDITED to"];
 
-  void _filterTransactions(int selectedMonth) {
+  Future<void> _filterTransactions(int selectedMonth) async {
     final now = DateTime.now();
     final currentYear = now.year;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+     List<String> accountNumbers = prefs.getStringList('savedCards') ?? [];
+     const debitKeywords = ["Amt Sent","debited", "withdrawn", "Sent Rs."];
+     const creditKeywords = ["credited to", "deposited","CREDITED to"];
 
 
     setState(() {
@@ -184,8 +186,7 @@ class _ExpenseTrackerPageState extends State<ExpenseTrackerPage> with SingleTick
             PopupMenuButton<int>(
               icon: Icon(Icons.settings),
               onSelected: (selectedMonth) {
-                _getSmsPermissionAndListen(context);
-                // _filterTransactions(selectedMonth);
+                _filterTransactions(selectedMonth);
               },
               itemBuilder: (context) {
                 final months = [
@@ -231,6 +232,8 @@ class _ExpenseTrackerPageState extends State<ExpenseTrackerPage> with SingleTick
     );
   }
   Widget _buildTransactionList(List<Map<String, dynamic>> transactions, Color iconColor, bool isTabIsDebit) {
+    String debitAmount = transactions.map((item) => item['debitAmount'] ?? 0.0).reduce((a, b) => a + b).toStringAsFixed(2);
+    String creditAmount = transactions.map((item) => item['creditAmount'] ?? 0.0).reduce((a, b) => a + b).toStringAsFixed(2);
     if (transactions.isEmpty) {
       return Center(child: Text("No transactions found for this month!"));
     }
@@ -258,7 +261,7 @@ class _ExpenseTrackerPageState extends State<ExpenseTrackerPage> with SingleTick
                     children: [
                       Text("Total spent:"),
                       Text(
-                        "\$ ${transactions.map((item) => item['debitAmount'] ?? 0.0).reduce((a, b) => a + b)}",
+                        "\$ ${debitAmount}",
                       ),
                     ],
                   ),
@@ -270,7 +273,7 @@ class _ExpenseTrackerPageState extends State<ExpenseTrackerPage> with SingleTick
                     children: [
                       Text("Total gain:"),
                       Text(
-                        "\$ ${transactions.map((item) => item['creditAmount'] ?? 0.0).reduce((a, b) => a + b)}",
+                        "\$ ${creditAmount}",
                       ),
                     ],
                   ),
