@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:sms_tracker/screens/expanseTrackerPage.dart';
+
+import '../screens/cardDetailsPage.dart';
 
 
 class CustomScaffold extends StatefulWidget {
   final String title;
   final Widget? body;
   final List<Widget>? appBarActions;
-  const CustomScaffold({super.key, required this.title, this.body, this.appBarActions});
+  final bool drawerDisable;
+  const CustomScaffold({super.key, required this.title, this.body, this.appBarActions, this.drawerDisable = false});
 
   @override
   State<CustomScaffold> createState() => _CustomScaffoldState();
@@ -18,7 +22,7 @@ class _CustomScaffoldState extends State<CustomScaffold> {
       top: true,
         child: Scaffold(
           resizeToAvoidBottomInset: false,
-          drawer: const CustomDrawer(),
+          drawer: widget.drawerDisable ? null : const CustomDrawer(),
           appBar: AppBar(
             title: Text(widget.title),
             actions: widget.appBarActions,
@@ -45,7 +49,7 @@ class CustomDrawer extends StatelessWidget {
             Align(
               alignment: Alignment.centerRight,
               child: IconButton(
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.close,
                   ),
                   onPressed: () {
@@ -53,14 +57,52 @@ class CustomDrawer extends StatelessWidget {
                   }),
             ),
             InkWell(
-              child: Row(
-                children: [
-                  Icon(Icons.settings),
-                  SizedBox(width: 10,),
-                  Text("Settings")
-                ],
+              onTap: (){
+                Navigator.pushAndRemoveUntil(context,
+                    MaterialPageRoute(builder: (_) => ExpenseTrackerPage()), (
+                        route) => false);
+              },
+              child: const Padding(
+                padding: EdgeInsets.only(bottom: 20.0),
+                child: Row(
+                  children: [
+                    Icon(Icons.home_filled),
+                    SizedBox(width: 10,),
+                    Text("Home")
+                  ],
+                ),
               ),
-            )
+            ),
+            InkWell(
+              onTap: (){
+                Navigator.pushAndRemoveUntil(context,
+                    MaterialPageRoute(builder: (_) => CardSaverPage()), (
+                        route) => false);
+              },
+              child: const Padding(
+                padding: EdgeInsets.only(bottom: 20.0),
+                child: Row(
+                  children: [
+                    Icon(Icons.settings),
+                    SizedBox(width: 10,),
+                    Text("Manage Cards")
+                  ],
+                ),
+              ),
+            ),
+            InkWell(
+              onTap: (){},
+              child: const Padding(
+                padding: EdgeInsets.only(bottom: 20.0),
+                child: Row(
+                  children: [
+                    Icon(Icons.settings),
+                    SizedBox(width: 10,),
+                    Text("Settings")
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
