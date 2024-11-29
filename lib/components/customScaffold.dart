@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:sms_tracker/screens/expanseTrackerPage.dart';
 
 import '../screens/cardDetailsPage.dart';
+import '../screens/expanseTrackerPage.dart';
 
 
 class CustomScaffold extends StatefulWidget {

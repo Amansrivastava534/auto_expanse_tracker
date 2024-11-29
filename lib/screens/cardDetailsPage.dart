@@ -4,9 +4,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sms_tracker/components/customSaveButton.dart';
-import 'package:sms_tracker/components/customScaffold.dart';
 
+import '../components/customSaveButton.dart';
+import '../components/customScaffold.dart';
 import '../constants.dart';
 import 'expanseTrackerPage.dart';
 

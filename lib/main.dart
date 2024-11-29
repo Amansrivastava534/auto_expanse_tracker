@@ -2,9 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sms_tracker/components/customScaffold.dart';
-import 'package:sms_tracker/screens/cardDetailsPage.dart';
-import 'package:sms_tracker/screens/expanseTrackerPage.dart';
+import 'components/customScaffold.dart';
+import 'screens/cardDetailsPage.dart';
+import 'screens/expanseTrackerPage.dart';
 
 
 void main() {
