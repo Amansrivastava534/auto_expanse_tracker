@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../screens/cardDetailsPage.dart';
+import '../screens/expanseTrackerPage.dart';
+
 
 class CustomScaffold extends StatefulWidget {
   final String title;
@@ -54,14 +57,52 @@ class CustomDrawer extends StatelessWidget {
                   }),
             ),
             InkWell(
-              child: Row(
-                children: [
-                  Icon(Icons.settings),
-                  SizedBox(width: 10,),
-                  Text("Settings")
-                ],
+              onTap: (){
+                Navigator.pushAndRemoveUntil(context,
+                    MaterialPageRoute(builder: (_) => ExpenseTrackerPage()), (
+                        route) => false);
+              },
+              child: const Padding(
+                padding: EdgeInsets.only(bottom: 20.0),
+                child: Row(
+                  children: [
+                    Icon(Icons.home_filled),
+                    SizedBox(width: 10,),
+                    Text("Home")
+                  ],
+                ),
               ),
-            )
+            ),
+            InkWell(
+              onTap: (){
+                Navigator.pushAndRemoveUntil(context,
+                    MaterialPageRoute(builder: (_) => CardSaverPage()), (
+                        route) => false);
+              },
+              child: const Padding(
+                padding: EdgeInsets.only(bottom: 20.0),
+                child: Row(
+                  children: [
+                    Icon(Icons.settings),
+                    SizedBox(width: 10,),
+                    Text("Manage Cards")
+                  ],
+                ),
+              ),
+            ),
+            InkWell(
+              onTap: (){},
+              child: const Padding(
+                padding: EdgeInsets.only(bottom: 20.0),
+                child: Row(
+                  children: [
+                    Icon(Icons.settings),
+                    SizedBox(width: 10,),
+                    Text("Settings")
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),

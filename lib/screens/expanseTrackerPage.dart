@@ -30,7 +30,7 @@ class _ExpenseTrackerPageState extends State<ExpenseTrackerPage> with SingleTick
     _smsSubscription = _smsStreamController.stream.listen((messages) {
       setState(() {
         _messages = messages;
-        _filterTransactions(-1); // Default to "All"
+        _filterTransactions(DateTime.now().month); // Default to current month
       });
     });
   }
