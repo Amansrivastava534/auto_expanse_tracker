@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,6 +21,7 @@ class _ExpenseTrackerPageState extends State<ExpenseTrackerPage> with SingleTick
   List<SmsMessage> _allMessages = [];
   List<SmsMessage> _messages = [];
   List<Map<String, dynamic>> _filteredTransactions = [];
+  List<Map<String, dynamic>> _allTransactions = [];
   late TabController _tabController;
   late StreamSubscription<List<SmsMessage>> _smsSubscription;
 
@@ -31,6 +34,7 @@ class _ExpenseTrackerPageState extends State<ExpenseTrackerPage> with SingleTick
       setState(() {
         _messages = messages;
         _filterTransactions(DateTime.now().month); // Default to current month
+          allTransaction();
       });
     });
   }
@@ -99,6 +103,73 @@ class _ExpenseTrackerPageState extends State<ExpenseTrackerPage> with SingleTick
     print("Background SMS received: ${message.body}");
   }
 
+  Future<void> allTransaction() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    List<String> accountNumbers = prefs.getStringList('savedCards') ?? [];
+    const debitKeywords = ["Amt Sent","debited", "withdrawn", "Sent Rs."];
+    const creditKeywords = ["credited to", "deposited","CREDITED to"];
+
+
+    setState(() {
+      // all map messages into transactions
+      _allTransactions = _messages
+          .map((message) {
+        final body = message.body?.toLowerCase() ?? "";
+        if (!accountNumbers.any((account) => body.contains(account.toLowerCase()))) {
+          return null; // Skip messages not related to specified accounts
+        }
+
+        String? type;
+        double? creditAmount;
+        double? debitAmount;
+
+        // Convert `message.date` (int) to `DateTime`
+        DateTime? transactionDate = message.date != null
+            ? DateTime.fromMillisecondsSinceEpoch(message.date ?? 0).toLocal()
+            : null;
+
+        // Check for debit or credit keywords and extract amount
+        if (debitKeywords.any((keyword) => body.contains(keyword.toLowerCase()))) {
+          type = "Debited";
+          debitAmount = _extractAmount(body);
+        } else if (creditKeywords.any((keyword) => body.contains(keyword.toLowerCase()))) {
+          type = "Credited";
+          creditAmount = _extractAmount(body);
+        }
+
+        // Only include transactions matching type and amount
+        if (type != null && (creditAmount != null || debitAmount != null)) {
+            return {
+              "type": type,
+              "creditAmount": creditAmount,
+              "debitAmount": debitAmount,
+              "body": message.body ?? "",
+              "date": transactionDate,
+            };
+        }
+
+        return null; // Skip messages that don't match criteria
+      })
+          .where((transaction) => transaction != null) // Remove null values
+          .toList()
+          .cast<Map<String, dynamic>>(); // Cast to list of maps
+    });
+    List<String> encodedTransactions = _filteredTransactions.map((transaction) {
+      // Convert DateTime objects in the map to string
+      Map<String, dynamic> encodedTransaction = transaction.map((key, value) {
+        if (value is DateTime) {
+          return MapEntry(key, value.toIso8601String());
+        }
+        return MapEntry(key, value);
+      });
+
+      return jsonEncode(encodedTransaction);
+    }).toList();
+    // Save the encoded list
+    await prefs.setStringList('allTransactions', encodedTransactions);
+  }
+
 
   Future<void> _filterTransactions(int selectedMonth) async {
     final now = DateTime.now();
@@ -160,6 +231,19 @@ class _ExpenseTrackerPageState extends State<ExpenseTrackerPage> with SingleTick
           .toList()
           .cast<Map<String, dynamic>>(); // Cast to list of maps
     });
+    List<String> encodedTransactions = _filteredTransactions.map((transaction) {
+      // Convert DateTime objects in the map to string
+      Map<String, dynamic> encodedTransaction = transaction.map((key, value) {
+        if (value is DateTime) {
+          return MapEntry(key, value.toIso8601String());
+        }
+        return MapEntry(key, value);
+      });
+
+      return jsonEncode(encodedTransaction);
+    }).toList();
+    // Save the encoded list
+    await prefs.setStringList('filteredTransactions', encodedTransactions);
   }
 
   double? _extractAmount(String body) {
@@ -178,48 +262,45 @@ class _ExpenseTrackerPageState extends State<ExpenseTrackerPage> with SingleTick
     final creditTransactions = _filteredTransactions.where((t) => t['type'] == 'Credited').toList();
     return SafeArea(
       top: true,
-      child: Scaffold(
-        drawer: const CustomDrawer(),
-        appBar: AppBar(
-          title: const Text("Expense Tracker"),
-          actions: [
-            PopupMenuButton<int>(
-              icon: const Icon(Icons.settings),
-              onSelected: (selectedMonth) {
-                _filterTransactions(selectedMonth);
-              },
-              itemBuilder: (context) {
-                final months = [
-                  "All", // Index 0 for "All"
-                  "January",
-                  "February",
-                  "March",
-                  "April",
-                  "May",
-                  "June",
-                  "July",
-                  "August",
-                  "September",
-                  "October",
-                  "November",
-                  "December"
-                ];
-                return List.generate(13, (index) {
-                  return PopupMenuItem(
-                    value: index == 0 ? -1 : index,
-                    child: Text(months[index]),
-                  );
-                });
-              },
-            ),
-          ],
-          bottom: TabBar(
-            controller: _tabController,
-            tabs: const [
-              Tab(icon: Icon(Icons.arrow_upward, color: Colors.red), text: "Debits"),
-              Tab(icon: Icon(Icons.arrow_downward, color: Colors.green), text: "Credits"),
-            ],
+      child: CustomScaffold(
+        title: "Expense Tracker",
+        appBarActions: [
+          PopupMenuButton<int>(
+            icon: const Icon(Icons.settings),
+            onSelected: (selectedMonth) {
+              _filterTransactions(selectedMonth);
+            },
+            itemBuilder: (context) {
+              final months = [
+                "All", // Index 0 for "All"
+                "January",
+                "February",
+                "March",
+                "April",
+                "May",
+                "June",
+                "July",
+                "August",
+                "September",
+                "October",
+                "November",
+                "December"
+              ];
+              return List.generate(13, (index) {
+                return PopupMenuItem(
+                  value: index == 0 ? -1 : index,
+                  child: Text(months[index]),
+                );
+              });
+            },
           ),
+        ],
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(icon: Icon(Icons.arrow_upward, color: Colors.red), text: "Debits"),
+            Tab(icon: Icon(Icons.arrow_downward, color: Colors.green), text: "Credits"),
+          ],
         ),
         body: TabBarView(
           controller: _tabController,

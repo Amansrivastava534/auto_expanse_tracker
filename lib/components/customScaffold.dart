@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../screens/cardDetailsPage.dart';
 import '../screens/expanseTrackerPage.dart';
+import '../screens/settingPage.dart';
 
 
 class CustomScaffold extends StatefulWidget {
@@ -9,7 +10,8 @@ class CustomScaffold extends StatefulWidget {
   final Widget? body;
   final List<Widget>? appBarActions;
   final bool drawerDisable;
-  const CustomScaffold({super.key, required this.title, this.body, this.appBarActions, this.drawerDisable = false});
+  final PreferredSizeWidget? bottom;
+  const CustomScaffold({super.key, required this.title, this.body, this.appBarActions, this.drawerDisable = false, this.bottom});
 
   @override
   State<CustomScaffold> createState() => _CustomScaffoldState();
@@ -24,8 +26,14 @@ class _CustomScaffoldState extends State<CustomScaffold> {
           resizeToAvoidBottomInset: false,
           drawer: widget.drawerDisable ? null : const CustomDrawer(),
           appBar: AppBar(
+            backgroundColor: Colors.blueAccent.shade100,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6),
+                  side: BorderSide(color: Colors.blueAccent.shade200)
+            ),
             title: Text(widget.title),
             actions: widget.appBarActions,
+            bottom: widget.bottom,
           ),
           body: widget.body,
 
@@ -91,7 +99,11 @@ class CustomDrawer extends StatelessWidget {
               ),
             ),
             InkWell(
-              onTap: (){},
+              onTap: (){
+                Navigator.pushAndRemoveUntil(context,
+                    MaterialPageRoute(builder: (_) => Settings()), (
+                        route) => false);
+              },
               child: const Padding(
                 padding: EdgeInsets.only(bottom: 20.0),
                 child: Row(
