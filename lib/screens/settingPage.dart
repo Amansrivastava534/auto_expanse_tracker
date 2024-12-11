@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:sms_tracker1/screens/pdf_excell_generate.dart';
 
 import '../components/customCard.dart';
 import '../components/customScaffold.dart';
 import '../services/pdfReport.dart';
+import '../utils.dart';
 
 class Settings extends StatefulWidget {
   const Settings({super.key});
@@ -21,7 +23,8 @@ class _SettingsState extends State<Settings> {
         child: customCard(
           title: "Pdf/Excel Generate",
           onTap: () async {
-            await generateExcel(context);
+            navigateToPage(GenerateReport(),context);
+            // await generateExcel(context);
           },
         ),
       ),

@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../components/customSaveButton.dart';
 import '../components/customScaffold.dart';
 import '../constants.dart';
+import '../utils.dart';
 import 'expanseTrackerPage.dart';
 
 class CardSaverPage extends StatefulWidget {
@@ -110,9 +111,7 @@ class _CardSaverPageState extends State<CardSaverPage> {
         GradientButton(
           onPressed: () async{
             if(_cards.isNotEmpty) {
-              Navigator.pushAndRemoveUntil(context,
-                  MaterialPageRoute(builder: (_) => ExpenseTrackerPage()), (
-                      route) => false);
+              navigateAndRemoveUntilPage(const ExpenseTrackerPage(),context);
             }else{
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Please save at least 1 card')),

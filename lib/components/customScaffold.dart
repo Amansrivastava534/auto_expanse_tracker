@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../screens/cardDetailsPage.dart';
 import '../screens/expanseTrackerPage.dart';
 import '../screens/settingPage.dart';
+import '../utils.dart';
 
 
 class CustomScaffold extends StatefulWidget {
@@ -66,9 +67,7 @@ class CustomDrawer extends StatelessWidget {
             ),
             InkWell(
               onTap: (){
-                Navigator.pushAndRemoveUntil(context,
-                    MaterialPageRoute(builder: (_) => ExpenseTrackerPage()), (
-                        route) => false);
+                navigateAndRemoveUntilPage(ExpenseTrackerPage(),context);
               },
               child: const Padding(
                 padding: EdgeInsets.only(bottom: 20.0),
@@ -83,9 +82,7 @@ class CustomDrawer extends StatelessWidget {
             ),
             InkWell(
               onTap: (){
-                Navigator.pushAndRemoveUntil(context,
-                    MaterialPageRoute(builder: (_) => CardSaverPage()), (
-                        route) => false);
+                navigateAndRemoveUntilPage(CardSaverPage(),context);
               },
               child: const Padding(
                 padding: EdgeInsets.only(bottom: 20.0),
@@ -100,9 +97,7 @@ class CustomDrawer extends StatelessWidget {
             ),
             InkWell(
               onTap: (){
-                Navigator.pushAndRemoveUntil(context,
-                    MaterialPageRoute(builder: (_) => Settings()), (
-                        route) => false);
+                navigateAndRemoveUntilPage(const Settings(),context);
               },
               child: const Padding(
                 padding: EdgeInsets.only(bottom: 20.0),
