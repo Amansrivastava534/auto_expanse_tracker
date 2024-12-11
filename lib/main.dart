@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sms_tracker1/screens/settingPage.dart';
 import 'components/customScaffold.dart';
 import 'screens/cardDetailsPage.dart';
 import 'screens/expanseTrackerPage.dart';
@@ -51,7 +50,7 @@ class _CustomHomeState extends State<CustomHome> {
     }
     else{
       Navigator.pushAndRemoveUntil(context,
-          MaterialPageRoute(builder: (_) => Settings()), (
+          MaterialPageRoute(builder: (_) => ExpenseTrackerPage()), (
               route) => false);
     }
 
