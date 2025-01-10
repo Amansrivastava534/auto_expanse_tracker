@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../constants.dart';
 import '../screens/cardDetailsPage.dart';
 import '../screens/expanseTrackerPage.dart';
 import '../screens/settingPage.dart';
@@ -12,7 +13,8 @@ class CustomScaffold extends StatefulWidget {
   final List<Widget>? appBarActions;
   final bool drawerDisable;
   final PreferredSizeWidget? bottom;
-  const CustomScaffold({super.key, required this.title, this.body, this.appBarActions, this.drawerDisable = false, this.bottom});
+  final Widget? floatingActionButton;
+  const CustomScaffold({super.key, required this.title, this.body, this.appBarActions, this.drawerDisable = false, this.bottom, this.floatingActionButton});
 
   @override
   State<CustomScaffold> createState() => _CustomScaffoldState();
@@ -29,7 +31,7 @@ class _CustomScaffoldState extends State<CustomScaffold> {
           appBar: AppBar(
             backgroundColor: Colors.blueAccent.shade100,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(6),
+              borderRadius: BorderRadius.circular(borderRadius),
                   side: BorderSide(color: Colors.blueAccent.shade200)
             ),
             title: Text(widget.title),
@@ -37,6 +39,7 @@ class _CustomScaffoldState extends State<CustomScaffold> {
             bottom: widget.bottom,
           ),
           body: widget.body,
+          floatingActionButton: widget.floatingActionButton,
 
         ));
   }

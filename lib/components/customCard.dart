@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../constants.dart';
+
 class customCard extends StatelessWidget {
   final String title;
   final Function()? onTap;
@@ -12,7 +14,7 @@ class customCard extends StatelessWidget {
       child: Card(
         elevation: 1,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(6),
+          borderRadius: BorderRadius.circular(borderRadius),
         ),
         margin: const EdgeInsets.only(left: 5),
         child: Container(

@@ -17,6 +17,7 @@ class GradientButton extends StatefulWidget {
   final Gradient? gradient;
   final BoxBorder? border;
   final FocusNode? buttonFocusNode;
+  final bool? cancelButton;
 
   const GradientButton({
     super.key,
@@ -33,7 +34,7 @@ class GradientButton extends StatefulWidget {
     this.labelColor,
     this.gradient,
     this.border,
-    this.buttonFocusNode,
+    this.buttonFocusNode, this.cancelButton = false,
   });
 
   @override
@@ -52,7 +53,7 @@ class _GradientButtonState extends State<GradientButton> {
         gradient: widget.gradient
       ),
       height: widget.height,
-      width: widget.width,
+      width: widget.width ?? 120,
       child: ElevatedButton(
         focusNode: widget.buttonFocusNode,
         style: ElevatedButton.styleFrom(
@@ -60,7 +61,7 @@ class _GradientButtonState extends State<GradientButton> {
             borderRadius:
             BorderRadius.all(Radius.circular(borderRadius)),
           ),
-          backgroundColor: Colors.blueAccent.shade200,
+          backgroundColor: widget.cancelButton == true ? Colors.grey :Colors.blueAccent.shade200,
           padding: const EdgeInsets.symmetric(horizontal: 15),
           elevation: 0,
         ),

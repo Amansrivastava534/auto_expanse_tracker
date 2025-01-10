@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import 'package:telephony/telephony.dart';
 import '../components/customScaffold.dart';
+import '../constants.dart';
 
 
 class ExpenseTrackerPage extends StatefulWidget {
@@ -332,7 +333,7 @@ class _ExpenseTrackerPageState extends State<ExpenseTrackerPage> with SingleTick
             margin: const EdgeInsets.all(5.0),
             decoration: BoxDecoration(
               border: Border.all(color: Colors.grey, width: 0.5),
-              borderRadius: BorderRadius.circular(5.0),
+              borderRadius: BorderRadius.circular(borderRadius),
             ),
             child: Column(
               children: [
@@ -372,7 +373,7 @@ class _ExpenseTrackerPageState extends State<ExpenseTrackerPage> with SingleTick
                   margin: const EdgeInsets.all(5.0),
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey, width: 0.0),
-                    borderRadius: BorderRadius.circular(5.0),
+                    borderRadius: BorderRadius.circular(borderRadius),
                   ),
                   child: ListTile(
                     leading: Icon(

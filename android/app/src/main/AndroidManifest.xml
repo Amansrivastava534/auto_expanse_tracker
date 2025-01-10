@@ -2,7 +2,7 @@
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.READ_SMS" />
     <application
-        android:label="sms_tracker"
+        android:label="sms_tracker1"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <receiver android:name="com.shounakmulay.telephony.sms.IncomingSmsReceiver"

@@ -26,7 +26,7 @@ Future<void> generatePDFReport(List<String> data) async {
   print('PDF saved to ${file.path}');
 }
 
-Future<void> generateExcel(BuildContext context) async {
+Future<void> generateExcel(BuildContext context,int month) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   var excel = Excel.createExcel(); // Create a new Excel document
 
@@ -46,7 +46,18 @@ Future<void> generateExcel(BuildContext context) async {
     _filteredTransactions = [];
   }
 
-  for (var transaction in _filteredTransactions.where((t) => t['type'] == 'Debited')) {
+  bool matchesMonth(String dateStr, int month) {
+    if (month == -1) return true; // Include all transactions
+    try {
+      DateTime date = DateTime.parse(dateStr);
+      return date.month == month + 1;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  for (var transaction in _filteredTransactions.where((t) =>
+  t['type'] == 'Debited' && matchesMonth(t['date'], month))) {
     debitsSheet.appendRow([
       // transaction['type'],
       transaction['debitAmount'] ?? '',
@@ -59,7 +70,8 @@ Future<void> generateExcel(BuildContext context) async {
   Sheet creditsSheet = excel['Credits'];
   creditsSheet.appendRow(['Type', 'Amount', 'Description', 'Date']);
 
-  for (var transaction in _filteredTransactions.where((t) => t['type'] == 'Credited')) {
+  for (var transaction in _filteredTransactions.where((t) =>
+  t['type'] == 'Credited' && matchesMonth(t['date'], month))) {
     creditsSheet.appendRow([
       // transaction['type'],
       transaction['creditAmount'] ?? '',
@@ -71,7 +83,7 @@ Future<void> generateExcel(BuildContext context) async {
   // Save the file
   try {
     final directory = await getDownloadsDirectory();
-    String filePath = "${directory?.path}/Transactions.xlsx";
+    String filePath = "${directory?.path}/Transactions_${month == -1 ? 'All' : 'Month_$month'}.xlsx";
 
     File(filePath)
       ..createSync(recursive: true)
